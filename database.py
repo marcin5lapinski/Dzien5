@@ -30,7 +30,7 @@ def save_listings(listings: list) -> list:
     now = datetime.now(timezone.utc).isoformat()
     with get_conn() as conn:
         for listing in listings:
-            row = {**listing, "fetched_at": now}
+            row = {**listing, "fetched_at": now, "city": listing.get("city", "").lower()}
             cur = conn.execute(
                 """INSERT OR IGNORE INTO listings
                    (id, city, title, price, area, price_per_m2, url, fetched_at)
@@ -81,9 +81,9 @@ def get_stats(
             "price_histogram": [], "area_histogram": [], "listings": [],
         }
 
-    prices = [r["price"] for r in rows if r["price"]]
-    areas = [r["area"] for r in rows if r["area"]]
-    ppms = [r["price_per_m2"] for r in rows if r["price_per_m2"]]
+    prices = [r["price"] for r in rows if r["price"] is not None]
+    areas = [r["area"] for r in rows if r["area"] is not None]
+    ppms = [r["price_per_m2"] for r in rows if r["price_per_m2"] is not None]
 
     return {
         "total": len(rows),
@@ -107,6 +107,9 @@ def _histogram(values: list, bins: int) -> list:
     for i in range(bins):
         bucket_lo = lo + i * step
         bucket_hi = bucket_lo + step
-        count = sum(1 for v in values if bucket_lo <= v < bucket_hi)
+        if i < bins - 1:
+            count = sum(1 for v in values if bucket_lo <= v < bucket_hi)
+        else:
+            count = sum(1 for v in values if bucket_lo <= v <= bucket_hi)
         result.append([round(bucket_lo), count])
     return result
