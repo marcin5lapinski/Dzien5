@@ -59,8 +59,8 @@ def fetch_listings(city: str, voivodeship: str, limit: int = 10) -> list:
     try:
         resp = requests.get(url, headers=HEADERS, timeout=15)
         resp.raise_for_status()
-        return _parse_listings(resp.text, city_to_slug(city))
-    except Exception:
+        return _parse_listings(resp.text, city)
+    except requests.RequestException:
         return []
 
 
@@ -81,17 +81,17 @@ def _parse_listings(html: str, city: str) -> list:
             price_raw = (item.get("totalPrice") or {}).get("value")
             area_raw = item.get("areaInSquareMeters")
             ppm2_raw = (item.get("pricePerSquareMeter") or {}).get("value")
-            if ppm2_raw is None and price_raw and area_raw:
+            if ppm2_raw is None and price_raw is not None and area_raw:
                 ppm2_raw = price_raw / area_raw
             results.append({
                 "id": str(item["id"]),
-                "city": city,
+                "city": city.lower(),
                 "title": item.get("title", ""),
                 "price": float(price_raw) if price_raw is not None else None,
                 "area": float(area_raw) if area_raw is not None else None,
                 "price_per_m2": float(ppm2_raw) if ppm2_raw is not None else None,
                 "url": f"https://www.otodom.pl/pl/oferta/{item.get('slug', item['id'])}",
             })
-        except (KeyError, TypeError):
+        except (KeyError, TypeError, ValueError):
             continue
     return results

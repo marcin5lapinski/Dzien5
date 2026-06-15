@@ -56,7 +56,7 @@ def test_parse_returns_empty_on_bad_json():
     results = scraper._parse_listings(html, "wroclaw")
     assert results == []
 
-def test_parse_skips_item_without_price():
+def test_parse_includes_item_with_null_price():
     item_no_price = {**ITEM, "id": 99002, "totalPrice": None}
     data = {"props": {"pageProps": {"data": {"searchAds": {"items": [item_no_price]}}}}}
     results = scraper._parse_listings(html_with(data), "wroclaw")
@@ -73,7 +73,7 @@ def test_city_to_slug_replaces_spaces():
 
 @patch("scraper.requests.get")
 def test_fetch_returns_empty_on_exception(mock_get):
-    mock_get.side_effect = Exception("timeout")
+    mock_get.side_effect = scraper.requests.RequestException("timeout")
     result = scraper.fetch_listings("Wrocław", "dolnośląskie")
     assert result == []
 
