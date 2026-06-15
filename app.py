@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from database import init_db, save_listings, mark_sent, get_stats, get_unsent
-from scraper import fetch_listings, city_to_slug
+from scraper import fetch_listings
 from discord_bot import send_listing
 
 app = Flask(__name__)
@@ -33,8 +33,8 @@ def api_fetch():
         mark_sent(sent_ids)
 
         # Retry any previously unsent listings for this city
-        city_slug = city_to_slug(city)
-        unsent = get_unsent(city_slug)
+        # Use city.lower() to match how scraper stores it (not slug — diacritics preserved)
+        unsent = get_unsent(city.lower())
         retry_ids = []
         for listing in unsent:
             if listing["id"] not in sent_ids:
