@@ -79,3 +79,15 @@ def test_listings_in_stats():
     stats = db_module.get_stats()
     assert len(stats["listings"]) == 1
     assert stats["listings"][0]["title"] == "3 pokoje, Śródmieście"
+
+def test_get_unsent_returns_unsent():
+    db_module.save_listings([SAMPLE])
+    unsent = db_module.get_unsent("wroclaw")
+    assert len(unsent) == 1
+    assert unsent[0]["id"] == "abc123"
+
+def test_get_unsent_empty_after_mark_sent():
+    db_module.save_listings([SAMPLE])
+    db_module.mark_sent(["abc123"])
+    unsent = db_module.get_unsent("wroclaw")
+    assert unsent == []

@@ -96,6 +96,16 @@ def get_stats(
     }
 
 
+def get_unsent(city: str) -> list:
+    with get_conn() as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            "SELECT * FROM listings WHERE city = ? AND sent_to_discord = 0",
+            (city.lower(),)
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
 def _histogram(values: list, bins: int) -> list:
     if not values:
         return []
