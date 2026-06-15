@@ -1,4 +1,5 @@
 from unittest.mock import patch, MagicMock, call
+import requests as req_lib
 import discord_bot
 
 LISTING = {
@@ -81,3 +82,16 @@ def test_channel_name_from_city(mock_get, mock_post):
     discord_bot.send_listing(listing_with_spaces)
     create_call_json = mock_post.call_args_list[0][1]["json"]
     assert create_call_json["name"] == "nowy-sacz"
+
+
+@patch("discord_bot.requests.post")
+@patch("discord_bot.requests.get")
+def test_returns_false_when_message_post_fails(mock_get, mock_post):
+    mock_get.return_value = make_mock_get([
+        {"id": "111", "name": "wroclaw", "type": 0}
+    ])
+    error_resp = MagicMock()
+    error_resp.raise_for_status.side_effect = req_lib.HTTPError("403 Forbidden")
+    mock_post.return_value = error_resp
+    result = discord_bot.send_listing(LISTING)
+    assert result is False
