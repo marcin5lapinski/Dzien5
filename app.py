@@ -52,7 +52,7 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/api/fetch", methods=["POST"])
+@app.route("/fetch", methods=["POST"])
 def api_fetch():
     data = request.get_json(silent=True) or {}
     city = (data.get("city") or "").strip()
@@ -66,7 +66,7 @@ def api_fetch():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route("/api/stats")
+@app.route("/stats")
 def api_stats():
     city = request.args.get("city") or None
     price_max = request.args.get("price_max", type=float)
