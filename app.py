@@ -9,7 +9,10 @@ from scraper import fetch_listings
 from discord_bot import send_listing
 
 app = Flask(__name__)
-init_db()  # idempotent — CREATE TABLE IF NOT EXISTS
+try:
+    init_db()
+except Exception as _e:
+    logging.getLogger(__name__).warning("init_db failed: %s", _e)
 
 
 def do_fetch(city: str, voivodeship: str) -> dict:
