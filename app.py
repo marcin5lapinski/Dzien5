@@ -2,6 +2,7 @@ import logging
 import os
 
 from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 from database import init_db, save_listings, mark_sent, get_stats, get_unsent
@@ -9,6 +10,7 @@ from scraper import fetch_listings
 from discord_bot import send_listing
 
 app = Flask(__name__)
+CORS(app)
 try:
     init_db()
 except Exception as _e:
