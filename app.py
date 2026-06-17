@@ -52,6 +52,11 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/ping")
+def ping():
+    return jsonify({"status": "ok", "path": request.path})
+
+
 @app.route("/fetch", methods=["POST"])
 def api_fetch():
     data = request.get_json(silent=True) or {}
