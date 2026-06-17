@@ -34,6 +34,52 @@ VOIVODESHIP_SLUGS = {
 }
 
 
+CITY_VOIVODESHIP = {
+    "warszawa": "mazowieckie",
+    "kraków": "małopolskie",
+    "krakow": "małopolskie",
+    "łódź": "łódzkie",
+    "lodz": "łódzkie",
+    "wrocław": "dolnośląskie",
+    "wroclaw": "dolnośląskie",
+    "poznań": "wielkopolskie",
+    "poznan": "wielkopolskie",
+    "gdańsk": "pomorskie",
+    "gdansk": "pomorskie",
+    "szczecin": "zachodniopomorskie",
+    "bydgoszcz": "kujawsko-pomorskie",
+    "lublin": "lubelskie",
+    "katowice": "śląskie",
+    "białystok": "podlaskie",
+    "bialystok": "podlaskie",
+    "gdynia": "pomorskie",
+    "częstochowa": "śląskie",
+    "czestochowa": "śląskie",
+    "radom": "mazowieckie",
+    "sosnowiec": "śląskie",
+    "toruń": "kujawsko-pomorskie",
+    "torun": "kujawsko-pomorskie",
+    "rzeszów": "podkarpackie",
+    "rzeszow": "podkarpackie",
+    "kielce": "świętokrzyskie",
+    "gliwice": "śląskie",
+    "olsztyn": "warmińsko-mazurskie",
+    "zabrze": "śląskie",
+    "bielsko-biała": "śląskie",
+    "bytom": "śląskie",
+    "zielona góra": "lubuskie",
+    "zielona gora": "lubuskie",
+    "rybnik": "śląskie",
+    "opole": "opolskie",
+    "tychy": "śląskie",
+}
+
+
+def lookup_voivodeship(city: str) -> str:
+    """Return voivodeship for a known city, or empty string if unknown."""
+    return CITY_VOIVODESHIP.get(city.lower().strip(), "")
+
+
 # Characters that do not decompose via NFD and must be mapped explicitly
 _EXTRA_MAP = str.maketrans({
     "Ł": "L",  # Ł

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zadanie na dzis - Dzien 5b</title>
+<style>
+  :root {
+    --bg: #0d0b1f;
+    --bg-card: #1a1633;
+    --text: #f3f0ff;
+    --muted: #a89fd6;
+    --accent1: #ff2d95;
+    --accent2: #7a2dff;
+    --accent3: #00e5ff;
+    --accent4: #b6ff00;
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: radial-gradient(1200px 800px at 80% -10%, #2a1f4d 0%, var(--bg) 55%);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+    padding: 32px 24px 48px;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  .hero h1 {
+    font-size: clamp(2rem, 6vw, 3.6rem);
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: -1px;
+  }
+  .hero h1 span {
+    background: linear-gradient(90deg, var(--accent1), var(--accent3));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .date {
+    display: inline-block;
+    margin-top: 10px;
+    background: var(--bg-card);
+    color: var(--accent3);
+    border: 2px solid var(--accent2);
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-weight: 800;
+    font-size: .85rem;
+    letter-spacing: 1px;
+  }
+  .hero p { color: var(--muted); font-size: 1.1rem; margin: 16px 0 32px; }
+  .card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 24px 26px;
+    margin-bottom: 22px;
+    box-shadow: 0 0 30px rgba(255, 45, 149, .15);
+  }
+  .card.cyan { box-shadow: 0 0 30px rgba(0, 229, 255, .15); }
+  .card.lime { box-shadow: 0 0 30px rgba(182, 255, 0, .12); }
+  .card h2 {
+    margin: 0 0 6px;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h2 .ic { font-size: 1.4rem; }
+  .card .sub { color: var(--muted); font-size: .95rem; margin: 0 0 16px; }
+  ol.steps { list-style: none; margin: 0; padding: 0; counter-reset: step; }
+  ol.steps li {
+    counter-increment: step;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(168, 159, 214, .14);
+    font-size: 1.08rem;
+  }
+  ol.steps li:last-child { border-bottom: none; }
+  ol.steps li::before {
+    content: counter(step);
+    flex: 0 0 auto;
+    width: 34px; height: 34px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    font-weight: 900; font-size: .95rem;
+    color: #0d0b1f;
+    background: linear-gradient(90deg, var(--accent2), var(--accent1));
+  }
+  .card.cyan ol.steps li::before { background: linear-gradient(90deg, var(--accent3), var(--accent4)); }
+  ol.steps li b { color: var(--text); }
+  ol.steps li small { display: block; color: var(--muted); font-size: .9rem; margin-top: 3px; }
+
+  ul.feat { list-style: none; margin: 0; padding: 0; }
+  ul.feat li {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid rgba(168, 159, 214, .12);
+    font-size: 1.04rem;
+  }
+  ul.feat li:last-child { border-bottom: none; }
+  ul.feat li::before {
+    content: "\2192";
+    color: var(--accent3); font-weight: 900; flex: 0 0 auto; margin-top: 1px;
+  }
+  ul.feat li small { display: block; color: var(--muted); font-size: .9rem; margin-top: 2px; }
+
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .flow .node {
+    background: var(--bg); border: 2px solid var(--accent2); border-radius: 12px;
+    padding: 10px 14px; font-weight: 700; font-size: .95rem;
+  }
+  .flow .arrow { color: var(--accent1); font-weight: 900; font-size: 1.2rem; }
+
+  .mock {
+    background: var(--bg); border: 2px dashed rgba(122, 45, 255, .5);
+    border-radius: 14px; padding: 18px; margin-top: 4px;
+  }
+  .mock-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+  .mock label { display: flex; flex-direction: column; gap: 6px; font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .mock .field { background: var(--bg-card); border: 2px solid var(--accent2); border-radius: 8px; padding: 9px 12px; color: var(--muted); min-width: 150px; font-size: .9rem; }
+  .mock .btn { background: linear-gradient(90deg, var(--accent3), var(--accent4)); color: #0d0b1f; border: none; border-radius: 999px; padding: 10px 18px; font-weight: 800; font-size: .9rem; }
+  .mock-kpis { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; }
+  .mock-kpi { background: var(--bg-card); border-radius: 12px; padding: 12px 16px; min-width: 110px; box-shadow: 0 0 18px rgba(122,45,255,.18); }
+  .mock-kpi .v { font-size: 1.3rem; font-weight: 900; }
+  .mock-kpi .l { color: var(--muted); font-size: .68rem; text-transform: uppercase; letter-spacing: 1px; }
+
+  footer { color: var(--muted); text-align: center; font-size: .85rem; margin-top: 34px; letter-spacing: 1px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <h1>Zadanie <span>na dzis</span></h1>
+    <div class="date">15.06.2026 - Dzien 5b</div>
+    <p>Cel: zbudowac lokalna aplikacje, ktora pobiera najnowsze oferty mieszkan z otodom dla wybranego miasta, zapisuje je do bazy, wysyla nowe na Discord i pokazuje statystyki na dashboardzie.</p>
+  </header>
+
+  <section class="card">
+    <h2><span class="ic">&#128296;</span> Co budujemy</h2>
+    <p class="sub">Cztery elementy, ktore razem tworza caly przeplyw.</p>
+    <ol class="steps">
+      <li><span><b>Stronka z formularzem</b><small>po kliknieciu zasysa najnowsze oferty z otodom</small></span></li>
+      <li><span><b>Konto na Discordzie</b><small>wlasny darmowy serwer dla powiadomien</small></span></li>
+      <li><span><b>Bot na Discordzie</b><small>aplikacja + token, zaproszony na serwer</small></span></li>
+      <li><span><b>Wysylka na Discord</b><small>wiadomosci o pobranych ogloszeniach</small></span></li>
+    </ol>
+  </section>
+
+  <section class="card cyan">
+    <h2><span class="ic">&#128421;&#65039;</span> Jak ma wygladac strona</h2>
+    <p class="sub">Jedna strona w przegladarce - formularz na gorze, dashboard pod spodem.</p>
+    <ul class="feat">
+      <li><span><b>Formularz pobierania</b><small>pole "Miasto", lista wyboru "Wojewodztwo", przycisk "Pobierz 10 najnowszych"</small></span></li>
+      <li><span><b>Komunikat statusu</b><small>info po kliknieciu: ile ofert pobrano, ile nowych poszlo na Discord</small></span></li>
+      <li><span><b>Kafelki KPI</b><small>np. liczba ofert, srednia cena, srednia cena za m2</small></span></li>
+      <li><span><b>Wykresy</b><small>rozklad cen / metrazy - odswiezaja sie po kazdym pobraniu</small></span></li>
+      <li><span><b>Filtry</b><small>mozliwosc zawezenia tego, co widac na dashboardzie</small></span></li>
+    </ul>
+
+    <div class="mock" aria-hidden="true">
+      <div class="mock-row">
+        <label>Miasto<span class="field">Wroclaw</span></label>
+        <label>Wojewodztwo<span class="field">dolnoslaskie &#9662;</span></label>
+        <span class="btn">Pobierz 10 najnowszych</span>
+      </div>
+      <div class="mock-kpis">
+        <div class="mock-kpi"><div class="v">10</div><div class="l">Oferty</div></div>
+        <div class="mock-kpi"><div class="v">720 tys.</div><div class="l">Srednia cena</div></div>
+        <div class="mock-kpi"><div class="v">13 900</div><div class="l">Cena za m2</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card lime">
+    <h2><span class="ic">&#128260;</span> Przeplyw po kliknieciu</h2>
+    <p class="sub">Co dzieje sie od kliknniecia przycisku do powiadomienia.</p>
+    <div class="flow">
+      <span class="node">Formularz</span>
+      <span class="arrow">&#8594;</span>
+      <span class="node">Pobranie z otodom</span>
+      <span class="arrow">&#8594;</span>
+      <span class="node">Zapis do bazy (bez duplikatow)</span>
+      <span class="arrow">&#8594;</span>
+      <span class="node">Nowe oferty na Discord</span>
+      <span class="arrow">&#8594;</span>
+      <span class="node">Dashboard sie odswieza</span>
+    </div>
+    <ul class="feat" style="margin-top:16px">
+      <li><span><b>10 najnowszych ofert</b><small>dla wybranego miasta</small></span></li>
+      <li><span><b>Bez duplikatow</b><small>drugie pobranie wysle tylko nowe oferty</small></span></li>
+      <li><span><b>Kanal o nazwie miasta</b><small>tworzony automatycznie przy pierwszych ofertach</small></span></li>
+    </ul>
+  </section>
+
+  <section class="card cyan">
+    <h2><span class="ic">&#128161;</span> Zasady</h2>
+    <ol class="steps">
+      <li><span><b>W razie pytan - najpierw pytamy Claude'a</b></span></li>
+      <li><span><b>Jesli cos niejasne - daj znac, pomagam</b></span></li>
+    </ol>
+  </section>
+
+  <footer>Dzien 5b &middot; ALX vibecoding</footer>
+
+</div>
+</body>
+</html>
