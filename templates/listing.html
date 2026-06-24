@@ -139,19 +139,20 @@ async function loadPriceHistory() {
     return;
   }
   const ctx = document.getElementById('chart-price').getContext('2d');
+  const labels = history.map(h => h.recorded_at.split('T')[0]);
   new Chart(ctx, {
     type: 'line',
     data: {
-      labels: history.map(h => h.recorded_at.split('T')[0]),
-      datasets: [{
-        data: history.map(h => h.price),
-        borderColor: '#8b2020', backgroundColor: 'rgba(139,32,32,.1)',
-        borderWidth: 2, tension: 0.3, fill: true,
-      }],
+      labels,
+      datasets: [
+        { label: 'PLN', data: history.map(h => h.price), borderColor: '#8b2020', backgroundColor: 'rgba(139,32,32,0.1)', borderWidth: 2, tension: 0.3, fill: true },
+        { label: 'EUR', data: history.map(h => h.price_eur), borderColor: '#c17f24', backgroundColor: 'rgba(193,127,36,0.1)', borderWidth: 2, tension: 0.3, fill: true },
+        { label: 'USD', data: history.map(h => h.price_usd), borderColor: '#5c3317', backgroundColor: 'rgba(92,51,23,0.1)', borderWidth: 2, tension: 0.3, fill: true },
+      ]
     },
     options: {
       responsive: true, maintainAspectRatio: true,
-      plugins: { legend: { display: false } },
+      plugins: { legend: { display: true, labels: { color: '#2b1a0e' } } },
       scales: {
         x: { ticks: { color: '#5c3317', font: { size: 10 } } },
         y: { ticks: { color: '#5c3317', font: { size: 10 },
