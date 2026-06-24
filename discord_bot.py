@@ -61,8 +61,9 @@ def send_error_to_discord(error_type: str, message: str) -> bool:
     if not DISCORD_ERROR_WEBHOOK:
         logger.warning("DISCORD_ERROR_WEBHOOK not set — skipping error notification")
         return False
+    message = str(message) if message is not None else ""
     try:
-        content = f"🚨 **Błąd [{error_type}]**\n```\n{message[:1800]}\n```"
+        content = f"🚨 **Błąd [{str(error_type)[:100]}]**\n```\n{message[:1800]}\n```"
         resp = requests.post(
             DISCORD_ERROR_WEBHOOK,
             json={"content": content, "username": "Otodom Error Bot"},
