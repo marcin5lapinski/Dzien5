@@ -1,3 +1,5 @@
 {
-  "outputDirectory": "templates"
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api/index" }
+  ]
 }

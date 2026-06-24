@@ -83,9 +83,11 @@ def _daily_fetch_rates():
         send_error_to_discord("NBP kursy walut", str(e))
 
 
-# Start scheduler + Discord gateway only in the worker process
-if not app.debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
-    from scraper import fetch_listings
+from scraper import fetch_listings
+
+# Start scheduler + Discord gateway only in the Werkzeug worker process (not serverless)
+_is_serverless = os.environ.get("VERCEL") == "1"
+if not _is_serverless and (not app.debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true"):
     from discord_gateway import start_gateway
     start_gateway(do_fetch)
 
@@ -93,8 +95,6 @@ if not app.debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
     scheduler.add_job(_daily_fetch_rates, "cron", hour=3, minute=0)
     scheduler.start()
     logger.info("APScheduler started — daily rate fetch at 03:00")
-else:
-    from scraper import fetch_listings
 
 
 # ── Routes ─────────────────────────────────────────────────────────────────────
