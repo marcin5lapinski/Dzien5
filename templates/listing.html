@@ -111,6 +111,15 @@
 const LISTING_ID = {{ listing_id | tojson }};
 const API = '';
 
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 async function loadListing() {
   const resp = await fetch(`${API}/api/listing/${LISTING_ID}`);
   if (!resp.ok) { document.getElementById('listing-title').textContent = 'Nie znaleziono ogłoszenia'; return; }
@@ -172,7 +181,7 @@ async function loadNotes() {
   }
   ul.innerHTML = notes.map(n => `
     <li class="note-item">
-      <div>${n.content}</div>
+      <div>${escapeHtml(n.content)}</div>
       <div class="note-time">${n.created_at.replace('T', ' ').slice(0, 16)}</div>
     </li>
   `).join('');
@@ -199,7 +208,7 @@ async function loadTags() {
     container.innerHTML = '<span class="empty-msg">Brak etykiet</span>';
     return;
   }
-  container.innerHTML = tags.map(t => `<span class="tag-item">${t.tag}</span>`).join('');
+  container.innerHTML = tags.map(t => `<span class="tag-item">${escapeHtml(t.tag)}</span>`).join('');
 }
 
 async function addTag() {

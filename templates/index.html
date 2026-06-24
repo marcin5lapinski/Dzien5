@@ -235,6 +235,15 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
   ? ''
   : 'RAILWAY_URL_PLACEHOLDER';
 
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 let priceChart = null, areaChart = null;
 const CHART_OPTS = {
   responsive: true, maintainAspectRatio: true,
@@ -333,11 +342,11 @@ function updateTable(listings) {
   tbody.innerHTML = listings.map(l => {
     const conv = convertPrice(l.price);
     return `<tr class="clickable" onclick="window.location='/listing/${l.id}'">
-      <td>${l.title || '—'}</td>
-      <td>${(l.city || '').replace('-',' ')}</td>
-      <td class="price-cell">${l.price ? fmt(conv.value) + ' ' + conv.symbol : '—'}</td>
-      <td>${l.area ? l.area.toFixed(0) : '—'}</td>
-      <td>${l.price_per_m2 ? fmt(l.price_per_m2) : '—'}</td>
+      <td>${escapeHtml(l.title) || '—'}</td>
+      <td>${escapeHtml((l.city || '').replace(/-/g,' '))}</td>
+      <td class="price-cell">${l.price != null ? fmt(conv.value) + ' ' + conv.symbol : '—'}</td>
+      <td>${l.area != null ? l.area.toFixed(0) : '—'}</td>
+      <td>${l.price_per_m2 != null ? fmt(l.price_per_m2) : '—'}</td>
       <td><a href="${l.url}" target="_blank" onclick="event.stopPropagation()">otodom →</a></td>
     </tr>`;
   }).join('');
