@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Otodom Tracker — Szczegóły Ogłoszenia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rye&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --sand: #f2e8c9; --dark: #2b1a0e; --brown: #5c3317;
+    --amber: #c17f24; --red: #8b2020; --leather: #8b5e3c;
+    --parchment: #ede0c0; --ink: #1a0f00;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--dark);
+    background-image: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.15) 2px,rgba(0,0,0,.15) 3px),
+      radial-gradient(ellipse at 50% 0%,#3d2510 0%,#2b1a0e 60%);
+    font-family: 'Libre Baskerville', Georgia, serif;
+    color: var(--sand); min-height: 100vh; padding-bottom: 48px;
+  }
+  .header { background: var(--brown); border-bottom: 4px solid var(--amber); }
+  .header-inner { max-width: 960px; margin: 0 auto; padding: 20px 24px 16px;
+    display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-family: 'Rye', cursive; font-size: 1.8rem; color: var(--amber);
+    text-shadow: 2px 2px 0 var(--dark); letter-spacing: 2px; }
+  .logo small { color: var(--sand); font-size: 0.75rem; display: block;
+    letter-spacing: 4px; text-transform: uppercase; font-family: 'Libre Baskerville', serif; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 24px; }
+  .back-link { color: var(--amber); text-decoration: none; font-size: 0.9rem;
+    display: inline-block; margin-bottom: 20px; }
+  .back-link:hover { text-decoration: underline; }
+  .card { background: var(--parchment); border: 4px solid var(--brown); border-radius: 4px;
+    box-shadow: 4px 4px 0 var(--dark); padding: 24px; color: var(--ink); margin-bottom: 24px; }
+  .card h2 { font-family: 'Rye', cursive; color: var(--red); margin-bottom: 16px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
+  .meta-item { display: flex; flex-direction: column; gap: 4px; }
+  .meta-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; color: var(--brown); font-weight: 700; }
+  .meta-value { font-size: 1.1rem; color: var(--ink); font-weight: 700; }
+  .price-val { color: var(--red); }
+  .chart-box { background: var(--parchment); border: 4px solid var(--brown); border-radius: 4px;
+    padding: 16px; box-shadow: 4px 4px 0 var(--dark); margin-bottom: 24px; }
+  .chart-title { font-family: 'Rye', cursive; font-size: 0.82rem; color: var(--red);
+    letter-spacing: 2px; margin-bottom: 10px; }
+  canvas { max-height: 200px; }
+  .section { background: var(--parchment); border: 4px solid var(--brown); border-radius: 4px;
+    box-shadow: 4px 4px 0 var(--dark); padding: 20px; color: var(--ink); margin-bottom: 24px; }
+  .section h3 { font-family: 'Rye', cursive; color: var(--brown); margin-bottom: 14px; font-size: 1rem; }
+  .note-list, .tag-list { list-style: none; margin-bottom: 12px; }
+  .note-item { padding: 8px 0; border-bottom: 1px solid rgba(92,51,23,.2); font-size: 0.9rem; }
+  .note-item:last-child { border-bottom: none; }
+  .note-time { font-size: 0.7rem; color: var(--brown); }
+  .tag-item { display: inline-block; background: var(--brown); color: var(--sand);
+    padding: 3px 10px; border-radius: 12px; font-size: 0.8rem; margin: 3px; }
+  .input-row { display: flex; gap: 8px; margin-top: 10px; }
+  .input-row input { flex: 1; background: #fff8e8; border: 2px solid var(--brown); border-radius: 2px;
+    padding: 8px 12px; font-family: 'Libre Baskerville', serif; font-size: 0.9rem; color: var(--ink); }
+  .btn { background: var(--amber); color: var(--dark); border: 2px solid var(--dark);
+    border-radius: 2px; padding: 8px 16px; font-family: 'Rye', cursive; font-size: 0.85rem;
+    cursor: pointer; box-shadow: 2px 2px 0 var(--dark); }
+  .btn:hover { opacity: 0.85; }
+  .empty-msg { color: var(--brown); font-style: italic; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">Otodom Tracker <small>★ Dziki Zachód Nieruchomości ★</small></div>
+    <span style="font-size:1.8rem;">🤠</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <a class="back-link" href="/">← Powrót do listy</a>
+
+  <div class="card" id="listing-card">
+    <h2 id="listing-title">Ładowanie...</h2>
+    <div class="meta" id="listing-meta"></div>
+    <a id="listing-url" href="#" target="_blank" rel="noopener" style="color:var(--brown);">Otwórz na Otodom →</a>
+  </div>
+
+  <div class="chart-box">
+    <div class="chart-title">Historia Cen</div>
+    <canvas id="chart-price"></canvas>
+    <p id="no-history" class="empty-msg" style="display:none;">Brak historii cen</p>
+  </div>
+
+  <div class="section">
+    <h3>Notatki</h3>
+    <ul class="note-list" id="notes-list"></ul>
+    <div class="input-row">
+      <input id="note-input" type="text" placeholder="Dodaj notatkę...">
+      <button class="btn" onclick="addNote()">Zapisz</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Etykiety</h3>
+    <div id="tags-container"></div>
+    <div class="input-row">
+      <input id="tag-input" type="text" placeholder="Nowa etykieta...">
+      <button class="btn" onclick="addTag()">Dodaj</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LISTING_ID = {{ listing_id | tojson }};
+const API = '';
+
+async function loadListing() {
+  const resp = await fetch(`${API}/api/listing/${LISTING_ID}`);
+  if (!resp.ok) { document.getElementById('listing-title').textContent = 'Nie znaleziono ogłoszenia'; return; }
+  const l = await resp.json();
+  document.getElementById('listing-title').textContent = l.title || 'Brak tytułu';
+  document.getElementById('listing-url').href = l.url || '#';
+  const meta = document.getElementById('listing-meta');
+  meta.innerHTML = [
+    ['Miasto', l.city || '—'],
+    ['Cena', l.price != null ? Math.round(l.price).toLocaleString('pl-PL') + ' zł' : '—'],
+    ['Powierzchnia', l.area != null ? l.area + ' m²' : '—'],
+    ['Cena/m²', l.price_per_m2 != null ? Math.round(l.price_per_m2).toLocaleString('pl-PL') + ' zł' : '—'],
+  ].map(([label, value]) => `
+    <div class="meta-item">
+      <span class="meta-label">${label}</span>
+      <span class="meta-value">${value}</span>
+    </div>
+  `).join('');
+}
+
+async function loadPriceHistory() {
+  const resp = await fetch(`${API}/api/listing/${LISTING_ID}/price-history`);
+  const history = await resp.json();
+  if (!history.length) {
+    document.getElementById('no-history').style.display = 'block';
+    return;
+  }
+  const ctx = document.getElementById('chart-price').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: history.map(h => h.recorded_at.split('T')[0]),
+      datasets: [{
+        data: history.map(h => h.price),
+        borderColor: '#8b2020', backgroundColor: 'rgba(139,32,32,.1)',
+        borderWidth: 2, tension: 0.3, fill: true,
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#5c3317', font: { size: 10 } } },
+        y: { ticks: { color: '#5c3317', font: { size: 10 },
+          callback: v => Math.round(v).toLocaleString('pl-PL') + ' zł' } },
+      },
+    },
+  });
+}
+
+async function loadNotes() {
+  const resp = await fetch(`${API}/api/listing/${LISTING_ID}/notes`);
+  const notes = await resp.json();
+  const ul = document.getElementById('notes-list');
+  if (!notes.length) {
+    ul.innerHTML = '<li class="empty-msg">Brak notatek</li>';
+    return;
+  }
+  ul.innerHTML = notes.map(n => `
+    <li class="note-item">
+      <div>${n.content}</div>
+      <div class="note-time">${n.created_at.replace('T', ' ').slice(0, 16)}</div>
+    </li>
+  `).join('');
+}
+
+async function addNote() {
+  const input = document.getElementById('note-input');
+  const content = input.value.trim();
+  if (!content) return;
+  await fetch(`${API}/api/listing/${LISTING_ID}/notes`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content }),
+  });
+  input.value = '';
+  loadNotes();
+}
+
+async function loadTags() {
+  const resp = await fetch(`${API}/api/listing/${LISTING_ID}/tags`);
+  const tags = await resp.json();
+  const container = document.getElementById('tags-container');
+  if (!tags.length) {
+    container.innerHTML = '<span class="empty-msg">Brak etykiet</span>';
+    return;
+  }
+  container.innerHTML = tags.map(t => `<span class="tag-item">${t.tag}</span>`).join('');
+}
+
+async function addTag() {
+  const input = document.getElementById('tag-input');
+  const tag = input.value.trim();
+  if (!tag) return;
+  await fetch(`${API}/api/listing/${LISTING_ID}/tags`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tag }),
+  });
+  input.value = '';
+  loadTags();
+}
+
+loadListing();
+loadPriceHistory();
+loadNotes();
+loadTags();
+</script>
+</body>
+</html>

@@ -23,6 +23,44 @@ def init_db():
                 sent_to_discord INTEGER DEFAULT 0
             )
         """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS currency_rates (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                currency_code TEXT NOT NULL,
+                currency_name TEXT,
+                rate REAL NOT NULL,
+                date TEXT NOT NULL,
+                fetched_at TEXT NOT NULL,
+                UNIQUE(currency_code, date)
+            )
+        """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS listing_price_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                listing_id TEXT NOT NULL,
+                price REAL,
+                price_per_m2 REAL,
+                recorded_at TEXT NOT NULL
+            )
+        """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS listing_notes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                listing_id TEXT NOT NULL,
+                session_id TEXT NOT NULL,
+                content TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )
+        """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS listing_tags (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                listing_id TEXT NOT NULL,
+                session_id TEXT NOT NULL,
+                tag TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )
+        """)
 
 
 def save_listings(listings: list) -> list:
