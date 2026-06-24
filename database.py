@@ -130,13 +130,17 @@ def save_currency_rates(rates: list) -> int:
     inserted = 0
     with get_conn() as conn:
         for r in rates:
-            cur = conn.execute(
-                """INSERT OR IGNORE INTO currency_rates
-                   (currency_code, currency_name, rate, date, fetched_at)
-                   VALUES (:currency_code, :currency_name, :rate, :date, :fetched_at)""",
-                r,
-            )
-            inserted += cur.rowcount
+            try:
+                cur = conn.execute(
+                    """INSERT OR IGNORE INTO currency_rates
+                       (currency_code, currency_name, rate, date, fetched_at)
+                       VALUES (:currency_code, :currency_name, :rate, :date, :fetched_at)""",
+                    r,
+                )
+                inserted += cur.rowcount
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).warning("Skipping malformed rate dict: %s", e)
     return inserted
 
 
@@ -213,14 +217,21 @@ def get_notes(listing_id: str, session_id: str) -> list:
 
 
 def save_tag(listing_id: str, session_id: str, tag: str) -> dict:
-    """Insert a tag and return it."""
+    """Insert a tag (idempotent per listing+session+tag) and return it."""
+    tag = tag.strip()
     now = datetime.now(timezone.utc).isoformat()
     with get_conn() as conn:
+        existing = conn.execute(
+            "SELECT id, created_at FROM listing_tags WHERE listing_id = ? AND session_id = ? AND tag = ?",
+            (listing_id, session_id, tag),
+        ).fetchone()
+        if existing:
+            return {"id": existing[0], "listing_id": listing_id, "tag": tag, "created_at": existing[1]}
         cur = conn.execute(
             "INSERT INTO listing_tags (listing_id, session_id, tag, created_at) VALUES (?, ?, ?, ?)",
-            (listing_id, session_id, tag.strip(), now),
+            (listing_id, session_id, tag, now),
         )
-        return {"id": cur.lastrowid, "listing_id": listing_id, "tag": tag.strip(), "created_at": now}
+        return {"id": cur.lastrowid, "listing_id": listing_id, "tag": tag, "created_at": now}
 
 
 def get_tags(listing_id: str, session_id: str) -> list:
