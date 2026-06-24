@@ -53,3 +53,23 @@ def send_listing(listing: dict) -> bool:
     except Exception as e:
         logger.error("send_listing failed for listing %s: %s", listing.get("id"), e)
         return False
+
+
+def send_error_to_discord(error_type: str, message: str) -> bool:
+    """Send error notification to Discord via webhook. Returns True on success."""
+    from config import DISCORD_ERROR_WEBHOOK
+    if not DISCORD_ERROR_WEBHOOK:
+        logger.warning("DISCORD_ERROR_WEBHOOK not set — skipping error notification")
+        return False
+    try:
+        content = f"🚨 **Błąd [{error_type}]**\n```\n{message[:1800]}\n```"
+        resp = requests.post(
+            DISCORD_ERROR_WEBHOOK,
+            json={"content": content, "username": "Otodom Error Bot"},
+            timeout=10,
+        )
+        resp.raise_for_status()
+        return True
+    except Exception as e:
+        logger.error("send_error_to_discord failed: %s", e)
+        return False
