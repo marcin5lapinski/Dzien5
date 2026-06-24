@@ -128,7 +128,7 @@ async function loadListing() {
   document.getElementById('listing-url').href = l.url || '#';
   const meta = document.getElementById('listing-meta');
   meta.innerHTML = [
-    ['Miasto', l.city || '—'],
+    ['Miasto', escapeHtml(l.city) || '—'],
     ['Cena', l.price != null ? Math.round(l.price).toLocaleString('pl-PL') + ' zł' : '—'],
     ['Powierzchnia', l.area != null ? l.area + ' m²' : '—'],
     ['Cena/m²', l.price_per_m2 != null ? Math.round(l.price_per_m2).toLocaleString('pl-PL') + ' zł' : '—'],
