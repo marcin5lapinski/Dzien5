@@ -7,7 +7,8 @@ load_dotenv()
 
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")
 GUILD_ID = os.getenv("GUILD_ID", "")
-DB_PATH = os.getenv("DB_PATH", "listings.db")
+_default_db = "/tmp/listings.db" if os.environ.get("VERCEL") == "1" else "listings.db"
+DB_PATH = os.getenv("DB_PATH", _default_db)
 DISCORD_ERROR_WEBHOOK = os.getenv("DISCORD_ERROR_WEBHOOK", "")
 FLASK_SECRET_KEY = os.getenv("FLASK_SECRET_KEY", "")
 if not FLASK_SECRET_KEY:
