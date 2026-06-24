@@ -7,8 +7,19 @@ load_dotenv()
 
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")
 GUILD_ID = os.getenv("GUILD_ID", "")
-_default_db = "/tmp/listings.db" if os.environ.get("VERCEL") == "1" else "listings.db"
-DB_PATH = os.getenv("DB_PATH", _default_db)
+def _resolve_db_path(requested: str) -> str:
+    """Return requested path if its directory is writable, else fall back to /tmp."""
+    try:
+        target_dir = os.path.dirname(os.path.abspath(requested)) or "."
+        probe = os.path.join(target_dir, ".db_write_probe")
+        with open(probe, "w") as f:
+            f.write("")
+        os.unlink(probe)
+        return requested
+    except OSError:
+        return "/tmp/listings.db"
+
+DB_PATH = _resolve_db_path(os.getenv("DB_PATH", "listings.db"))
 DISCORD_ERROR_WEBHOOK = os.getenv("DISCORD_ERROR_WEBHOOK", "")
 FLASK_SECRET_KEY = os.getenv("FLASK_SECRET_KEY", "")
 if not FLASK_SECRET_KEY:
