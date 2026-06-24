@@ -10,7 +10,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, jsonify, render_template, request, session
 
 from config import FLASK_SECRET_KEY
-from currency import fetch_rates_last_18_months
+from currency import fetch_current_rates, fetch_rates_last_18_months
 from database import (
     get_latest_rates, get_listing, get_notes, get_price_history, get_stats,
     get_tags, get_unsent, init_db, mark_sent, record_price_if_changed,
@@ -202,7 +202,10 @@ def api_add_tag(listing_id):
 
 @app.route("/api/rates")
 def api_rates():
-    return jsonify(get_latest_rates())
+    rates = get_latest_rates()
+    if not rates:
+        rates = fetch_current_rates()
+    return jsonify(rates)
 
 
 @app.route("/api/fetch-rates", methods=["POST"])

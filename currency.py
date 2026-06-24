@@ -58,6 +58,33 @@ def fetch_rates_for_period(start: date, end: date) -> list[dict]:
         return []
 
 
+NBP_LATEST_URL = "https://api.nbp.pl/api/exchangerates/tables/A/?format=json"
+
+
+def fetch_current_rates() -> dict:
+    """Fetch the latest available NBP rates in a single fast call.
+
+    Returns {code: {rate, currency_name, date}} or {} on error.
+    Used as a live fallback when the database is empty (e.g. cold serverless start).
+    """
+    try:
+        resp = requests.get(NBP_LATEST_URL, timeout=5)
+        resp.raise_for_status()
+        result = {}
+        for table in resp.json():
+            date_str = table.get("effectiveDate", "")
+            for entry in table.get("rates", []):
+                result[entry["code"]] = {
+                    "rate": entry["mid"],
+                    "currency_name": entry["currency"],
+                    "date": date_str,
+                }
+        return result
+    except Exception as e:
+        logger.error("NBP current rates fetch failed: %s", e)
+        return {}
+
+
 def fetch_rates_last_18_months() -> list[dict]:
     """Fetch all currency rates for the last 18 months."""
     all_rates = []
