@@ -254,6 +254,18 @@ def qr_login(token):
     return render_template("qr_success.html")
 
 
+@app.route("/api/test-error")
+def api_test_error():
+    """Development only — simulate error notification to Discord."""
+    send_error_to_discord(
+        "Test błędu",
+        "To jest testowa wiadomość błędu wysłana z /api/test-error\n"
+        "Przykład: błąd pobierania kursów walut z NBP API\n"
+        "ConnectionError: Max retries exceeded with url: /api/exchangerates/tables/A/..."
+    )
+    return jsonify({"status": "error notification sent (check Discord #errors)"})
+
+
 if __name__ == "__main__":
     init_db()
     app.run(debug=True, port=5000)
