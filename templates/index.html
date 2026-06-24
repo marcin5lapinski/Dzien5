@@ -107,6 +107,14 @@
   .price-cell { color: var(--red); font-weight: 700; }
   a { color: var(--brown); }
   @media(max-width:600px){ .poster-fields, .saloon-fields { flex-direction: column; } }
+  .currency-bar{display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--sand);}
+  .currency-bar select{background:var(--dark);border:2px solid var(--amber);border-radius:2px;padding:4px 8px;color:var(--amber);font-family:'Rye',cursive;font-size:0.78rem;}
+  .search-bar{background:var(--brown);border:2px solid var(--amber);border-radius:4px;padding:10px 16px;margin-bottom:16px;display:flex;gap:8px;align-items:center;}
+  .search-bar input{flex:1;background:var(--dark);border:2px solid var(--amber);border-radius:2px;padding:6px 10px;font-family:'Libre Baskerville',serif;color:var(--sand);font-size:0.9rem;}
+  .search-bar button{background:var(--amber);color:var(--dark);border:2px solid var(--dark);border-radius:2px;padding:6px 14px;font-family:'Rye',cursive;font-size:0.8rem;cursor:pointer;}
+  tr.clickable{cursor:pointer;}
+  tr.clickable:hover td{background:rgba(193,127,36,0.12);}
+  .btn-qr{background:transparent;color:var(--amber);border:2px solid var(--amber);border-radius:2px;padding:6px 12px;font-family:'Rye',cursive;font-size:0.75rem;cursor:pointer;text-decoration:none;}
 </style>
 </head>
 <body>
@@ -114,7 +122,18 @@
 <header class="header">
   <div class="header-inner">
     <div class="logo">Otodom Tracker <small>★ Dziki Zachód Nieruchomości ★</small></div>
-    <span style="font-size:1.8rem;">🤠</span>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div class="currency-bar">
+        <span>Waluta:</span>
+        <select id="currency-select" onchange="saveCurrency(this.value)">
+          <option value="PLN">PLN</option>
+          <option value="EUR">EUR</option>
+          <option value="USD">USD</option>
+        </select>
+      </div>
+      <a class="btn-qr" href="/qr-auth">📱 QR Login</a>
+      <span style="font-size:1.8rem;">🤠</span>
+    </div>
   </div>
 </header>
 
@@ -189,6 +208,12 @@
     </div>
   </div>
 
+  <div class="search-bar">
+    <span style="font-family:'Rye',cursive;font-size:0.85rem;color:var(--amber);">🔍 Szukaj w notatkach:</span>
+    <input id="note-search" type="text" placeholder="wpisz tekst notatki...">
+    <button onclick="searchNotes()">Szukaj</button>
+  </div>
+
   <div class="board">
     <div class="board-header">📋 Tablica Ogłoszeń Szeryfatu</div>
     <table>
@@ -209,6 +234,15 @@
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? ''
   : 'RAILWAY_URL_PLACEHOLDER';
+
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 let priceChart = null, areaChart = null;
 const CHART_OPTS = {
@@ -299,21 +333,23 @@ function updateChart(id, existing, histogram, setter, color1, color2) {
 }
 
 function updateTable(listings) {
+  _lastListings = listings;
   const tbody = document.getElementById('listings-body');
   if (!listings.length) {
     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--brown);padding:20px;">Brak ofert</td></tr>';
     return;
   }
-  tbody.innerHTML = listings.map(l => `
-    <tr>
-      <td>${l.title || '—'}</td>
-      <td>${(l.city || '').replace(/-/g,' ')}</td>
-      <td class="price-cell">${l.price != null ? fmt(l.price) : '—'}</td>
+  tbody.innerHTML = listings.map(l => {
+    const conv = convertPrice(l.price);
+    return `<tr class="clickable" onclick="window.location='/listing/${l.id}'">
+      <td>${escapeHtml(l.title) || '—'}</td>
+      <td>${escapeHtml((l.city || '').replace(/-/g,' '))}</td>
+      <td class="price-cell">${l.price != null ? fmt(conv.value) + ' ' + conv.symbol : '—'}</td>
       <td>${l.area != null ? l.area.toFixed(0) : '—'}</td>
       <td>${l.price_per_m2 != null ? fmt(l.price_per_m2) : '—'}</td>
-      <td><a href="${l.url}" target="_blank" rel="noopener">otodom →</a></td>
-    </tr>
-  `).join('');
+      <td><a href="${l.url}" target="_blank" onclick="event.stopPropagation()">otodom →</a></td>
+    </tr>`;
+  }).join('');
 }
 
 function updateCityFilter(listings) {
@@ -324,7 +360,47 @@ function updateCityFilter(listings) {
     cities.map(c => `<option value="${c}" ${c === current ? 'selected' : ''}>${c.replace(/-/g,' ')}</option>`).join('');
 }
 
-loadStats();
+// Currency support
+let _rates = {};
+
+async function loadRates() {
+  try {
+    const resp = await fetch('/api/rates');
+    _rates = await resp.json();
+  } catch(e) { _rates = {}; }
+}
+
+function saveCurrency(val) {
+  localStorage.setItem('currency', val);
+  updateTable(_lastListings || []);
+}
+
+function getSelectedCurrency() {
+  return localStorage.getItem('currency') || 'PLN';
+}
+
+function convertPrice(plnPrice) {
+  const cur = getSelectedCurrency();
+  if (cur === 'PLN' || !plnPrice) return { value: plnPrice, symbol: 'zł' };
+  const rate = (_rates[cur] || {}).rate;
+  if (!rate) return { value: plnPrice, symbol: 'zł' };
+  return { value: Math.round(plnPrice / rate), symbol: cur };
+}
+
+let _lastListings = [];
+
+async function searchNotes() {
+  const q = document.getElementById('note-search').value.trim();
+  if (!q) { await loadStats(); return; }
+  const resp = await fetch(`/api/search-notes?q=${encodeURIComponent(q)}`);
+  const listings = await resp.json();
+  updateTable(listings);
+  updateCityFilter(listings);
+}
+
+// Init
+document.getElementById('currency-select').value = getSelectedCurrency();
+loadRates().then(() => loadStats());
 </script>
 </body>
 </html>

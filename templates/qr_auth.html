@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Otodom Tracker — Logowanie QR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rye&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root { --sand: #f2e8c9; --dark: #2b1a0e; --brown: #5c3317; --amber: #c17f24; --parchment: #ede0c0; --ink: #1a0f00; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--dark); font-family: 'Libre Baskerville', Georgia, serif;
+    color: var(--sand); min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 24px; }
+  .card { background: var(--parchment); border: 6px solid var(--brown); border-radius: 4px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.5); padding: 40px 32px; text-align: center;
+    color: var(--ink); max-width: 400px; width: 100%; }
+  h1 { font-family: 'Rye', cursive; color: var(--brown); margin-bottom: 8px; font-size: 1.5rem; }
+  p { font-size: 0.9rem; color: var(--brown); margin-bottom: 24px; }
+  .qr-img { border: 4px solid var(--brown); border-radius: 4px; margin-bottom: 20px; max-width: 260px; }
+  .url-box { background: #fff8e8; border: 2px solid var(--brown); border-radius: 2px;
+    padding: 8px 12px; font-size: 0.75rem; word-break: break-all; color: var(--ink); margin-top: 8px; }
+  a { color: var(--brown); }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Logowanie QR</h1>
+  <p>Zeskanuj kod telefonem aby przenieść sesję na inne urządzenie</p>
+  <img class="qr-img" src="data:image/png;base64,{{ qr_b64 }}" alt="Kod QR do logowania">
+  <div class="url-box">{{ login_url }}</div>
+  <p style="margin-top:16px;font-size:0.8rem;">Kod jest jednorazowy i wygaśnie po użyciu</p>
+  <a href="/">← Powrót</a>
+</div>
+</body>
+</html>

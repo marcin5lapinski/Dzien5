@@ -29,7 +29,7 @@ def test_index_returns_html(client):
 
 
 def test_stats_empty_initially(client):
-    resp = client.get("/api/stats")
+    resp = client.get("/stats")
     assert resp.status_code == 200
     data = resp.get_json()
     assert data["total"] == 0
@@ -39,7 +39,7 @@ def test_stats_empty_initially(client):
 @patch("app.fetch_listings", return_value=[LISTING])
 def test_fetch_returns_counts(mock_scrape, mock_discord, client):
     resp = client.post(
-        "/api/fetch",
+        "/fetch",
         json={"city": "Wrocław", "voivodeship": "dolnośląskie"},
         content_type="application/json",
     )
@@ -53,8 +53,8 @@ def test_fetch_returns_counts(mock_scrape, mock_discord, client):
 @patch("app.send_listing", return_value=True)
 @patch("app.fetch_listings", return_value=[LISTING])
 def test_second_fetch_no_duplicates(mock_scrape, mock_discord, client):
-    client.post("/api/fetch", json={"city": "Wrocław", "voivodeship": "dolnośląskie"}, content_type="application/json")
-    resp = client.post("/api/fetch", json={"city": "Wrocław", "voivodeship": "dolnośląskie"}, content_type="application/json")
+    client.post("/fetch", json={"city": "Wrocław", "voivodeship": "dolnośląskie"}, content_type="application/json")
+    resp = client.post("/fetch", json={"city": "Wrocław", "voivodeship": "dolnośląskie"}, content_type="application/json")
     data = resp.get_json()
     assert data["new"] == 0
     assert data["discord_sent"] == 0
@@ -62,7 +62,7 @@ def test_second_fetch_no_duplicates(mock_scrape, mock_discord, client):
 
 def test_fetch_missing_city_returns_400(client):
     resp = client.post(
-        "/api/fetch",
+        "/fetch",
         json={"voivodeship": "dolnośląskie"},
         content_type="application/json",
     )
@@ -72,8 +72,8 @@ def test_fetch_missing_city_returns_400(client):
 @patch("app.send_listing", return_value=True)
 @patch("app.fetch_listings", return_value=[LISTING])
 def test_stats_updates_after_fetch(mock_scrape, mock_discord, client):
-    client.post("/api/fetch", json={"city": "Wrocław", "voivodeship": "dolnośląskie"}, content_type="application/json")
-    resp = client.get("/api/stats")
+    client.post("/fetch", json={"city": "Wrocław", "voivodeship": "dolnośląskie"}, content_type="application/json")
+    resp = client.get("/stats")
     data = resp.get_json()
     assert data["total"] == 1
     assert data["avg_price"] == 500000

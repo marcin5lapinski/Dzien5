@@ -6,3 +6,5 @@ beautifulsoup4
 python-dotenv
 websocket-client
 pytest
+apscheduler
+qrcode[pil]
